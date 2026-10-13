@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Jugadores')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Jugadores','Plantillas, dorsales y posiciones','👕')}"></div>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="text-secondary"><strong th:text="${#lists.size(jugadores)}">0</strong> registrados</div>
+    <a href="/jugadores/nuevo" class="btn btn-primary">👕 Nuevo jugador</a>
+  </div>
+  <div class="row g-3">
+    <div class="col-sm-6 col-xl-4" th:each="j : ${jugadores}">
+      <article class="tarjeta">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="camiseta" th:classappend="'pos-' + ${#strings.toLowerCase(j.posicion)}" th:text="${j.numero}">10</div>
+          <div>
+            <h2 th:text="${j.nombre + ' ' + j.apellido}">Nombre</h2>
+            <span class="etiqueta-pos" th:classappend="'pos-' + ${#strings.toLowerCase(j.posicion)}" th:text="${j.posicion}">Posición</span>
+          </div>
+        </div>
+      <div class="tarjeta__acciones">
+        <a th:href="@{/jugadores/{id}/editar(id=${j.id})}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+        <form th:action="@{/jugadores/{id}/eliminar(id=${j.id})}" method="post"
+              onsubmit="return confirm('¿Eliminar este registro?')">
+          <button class="btn btn-sm btn-outline-danger">🟥 Eliminar</button>
+        </form>
+      </div>
+      </article>
+    </div>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(jugadores)}"><div class="grande">👕</div>No hay jugadores inscritos todavía.</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

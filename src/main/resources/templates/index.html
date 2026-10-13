@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liga · Panel de clubes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f3ec; --card:#ffffff; --ink:#14213d; --ink2:#4a5568; --soft:#8a93a3;
+    --line:#e3ddd0; --accent:#e85d04; --accent-soft:#fdebd9; --blue:#1d4ed8; --blue-soft:#e0e9ff;
+    --green:#15803d; --green-soft:#dcfce7; --red:#b91c1c; --red-soft:#fee2e2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+  h1,h2,h3,.display{font-family:"Oswald",Inter,sans-serif}
+
+  /* ---------- sidebar */
+  aside{width:230px;flex:none;background:var(--ink);color:#fff;padding:22px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px}
+  .brand .logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;font-weight:700;font-family:"Oswald"}
+  .brand b{font-family:"Oswald";font-size:17px;display:block;line-height:1.1}
+  .brand small{color:#a9b4cc;font-size:11px}
+  .nav-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;color:#c9d2e3;cursor:pointer;border:0;background:none;font:inherit;text-align:left;width:100%}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav-item.on{background:#fff;color:var(--ink);font-weight:600}
+  .nav-item .count{font-size:11px;background:rgba(255,255,255,.12);padding:1px 8px;border-radius:999px}
+  .nav-item.on .count{background:var(--accent-soft);color:var(--accent)}
+  .legend{margin-top:auto;font-size:11px;color:#a9b4cc;padding:12px;border-top:1px solid rgba(255,255,255,.1);line-height:1.8}
+  .legend code{color:#ffb977}
+
+  /* ---------- main */
+  main{flex:1;min-width:0;padding:28px 32px}
+  .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+  .top h1{margin:0;font-size:28px}
+  .top p{margin:2px 0 0;color:var(--ink2)}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font:600 13px Inter,sans-serif;cursor:pointer}
+  .btn:hover{opacity:.9}
+  .btn.accent{background:var(--accent);border-color:var(--accent)}
+  .btn.line{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn.danger{background:transparent;color:var(--red);border-color:#f3b4b4}
+  .btn.xs{padding:4px 11px;font-size:12px}
+
+  /* ---------- clubes: maestro-detalle */
+  .md{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+  .club-list{display:flex;flex-direction:column;gap:8px}
+  .club-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:center;transition:.15s}
+  .club-item:hover{border-color:var(--soft)}
+  .club-item.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .crest{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:700 14px "Oswald";color:#fff;flex:none}
+  .club-item b{display:block}
+  .club-item small{color:var(--soft)}
+
+  .detail{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .detail-head{padding:22px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .detail-head .crest{width:56px;height:56px;font-size:20px}
+  .detail-head h2{margin:0;font-size:24px}
+  .detail-head .id{color:var(--soft);font-size:12px;font-family:ui-monospace,monospace}
+  .detail-head .acts{margin-left:auto;display:flex;gap:8px}
+  .rels{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .rel{padding:18px 24px;border-bottom:1px solid var(--line)}
+  .rel:nth-child(odd){border-right:1px solid var(--line)}
+  .rel.wide{grid-column:1/-1;border-right:0}
+  .rel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .rel-h span{font:600 12px Inter;text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+  .ann{font:500 11px ui-monospace,monospace;padding:2px 8px;border-radius:6px}
+  .ann.o2o{background:var(--accent-soft);color:var(--accent)}
+  .ann.o2m{background:var(--green-soft);color:var(--green)}
+  .ann.m2o{background:var(--blue-soft);color:var(--blue)}
+  .ann.m2m{background:#f3e8ff;color:#7e22ce}
+  .person{display:flex;align-items:center;gap:12px}
+  .avatar{width:42px;height:42px;border-radius:12px;background:var(--paper);display:grid;place-items:center;font:700 14px "Oswald";color:var(--ink)}
+  .muted{color:var(--soft)}
+  .none{color:var(--soft);font-style:italic;font-size:13px}
+  .squad{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+  .shirt{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:10px;position:relative}
+  .shirt .n{font:700 20px "Oswald";color:var(--accent);width:30px;text-align:center}
+  .shirt small{display:block;color:var(--soft);font-size:11px}
+  .rm{position:absolute;top:4px;right:6px;border:0;background:none;color:var(--soft);cursor:pointer;font-size:13px}
+  .rm:hover{color:var(--red)}
+  .badges{display:flex;flex-wrap:wrap;gap:8px}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fcfbf8}
+  .badge .rm{position:static}
+  .picker{display:flex;gap:6px;margin-top:10px}
+  select,input{font:inherit;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px;color:var(--ink);width:100%}
+  select:focus,input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  .picker select{flex:1}
+
+  /* ---------- entidades: tarjetas */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .ecard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .ecard h3{margin:0 0 2px;font-size:17px}
+  .ecard dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:10px 0;font-size:13px}
+  .ecard dt{color:var(--soft)} .ecard dd{margin:0}
+  .owner{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+  .tagc{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue)}
+  .tagc.free{background:var(--green-soft);color:var(--green)}
+  .ecard .row{display:flex;gap:6px}
+
+  /* ---------- drawer */
+  .scrim{position:fixed;inset:0;background:rgba(20,33,61,.35);opacity:0;pointer-events:none;transition:.2s;z-index:20}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(440px,100vw);background:var(--card);z-index:21;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column}
+  body.open .scrim{opacity:1;pointer-events:auto} body.open .drawer{transform:none;box-shadow:-10px 0 30px rgba(0,0,0,.12)}
+  .drawer header{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .drawer header h3{margin:0;font-size:20px}
+  .drawer form{padding:18px 22px;overflow:auto;flex:1}
+  .drawer label{display:block;font-weight:600;font-size:12px;margin:14px 0 6px;color:var(--ink2)}
+  .opts{border:1px solid var(--line);border-radius:10px;max-height:190px;overflow:auto}
+  .drawer label.opt{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:0;border-bottom:1px solid var(--line);font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+  .drawer .opt:last-child{border-bottom:0}
+  .opt input{width:auto}
+  .opt.taken{opacity:.45;cursor:not-allowed}
+  .opt em{margin-left:auto;font-size:11px;color:var(--soft);font-style:normal}
+  .drawer footer{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+
+  #msg{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-120%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-weight:500;transition:.25s;z-index:30;max-width:90vw;opacity:0}
+  #msg.show{transform:translateX(-50%) translateY(0);opacity:1} #msg.err{background:var(--red)}
+
+  @media (max-width:900px){
+    body{flex-direction:column} aside{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:12px}
+    .brand{padding:0 8px 0 0}.legend{display:none}#nav{display:flex;flex-wrap:wrap;gap:4px}.nav-item{width:auto}
+    main{padding:20px 16px}.md{grid-template-columns:1fr}.rels{grid-template-columns:1fr}.rel:nth-child(odd){border-right:0}
+  }
+
+  /* ---------- tema fútbol (sobrescribe la paleta) */
+  :root{
+    --paper:#eef5ec; --ink:#0d2a1b; --ink2:#44594b; --soft:#7d9486; --line:#d5e2d5;
+    --accent:#0b6b3a; --accent-soft:#d8f1e1; --blue:#1d4ed8; --blue-soft:#e0e9ff;
+  }
+  h1,h2,h3,.display{text-transform:uppercase;letter-spacing:.04em}
+  aside{background:repeating-linear-gradient(180deg,#064226 0 90px,#07502d 90px 180px);border-right:4px solid #f5b301}
+  .brand .logo{background:#fff;font-size:20px}
+  .nav-item.on{background:#f5b301;color:#3b2b00}
+  .nav-item.on .count{background:rgba(0,0,0,.12);color:#3b2b00}
+  .legend code{color:#ffd60a}
+  .btn.accent{background:#0b6b3a;border-color:#0b6b3a}
+  .top{background:repeating-linear-gradient(90deg,#0e7a41 0 64px,#0b6b3a 64px 128px);color:#fff;border-radius:16px;padding:22px 26px;border:3px solid rgba(255,255,255,.9);box-shadow:0 10px 26px rgba(6,66,38,.25)}
+  .top h1{color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .top p{color:rgba(255,255,255,.9)}
+  .top .btn.accent{background:#f5b301;border-color:#f5b301;color:#3b2b00}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand"><div class="logo">⚽</div><div><b>Liga Panel</b><small>Spring + MongoDB</small></div></div>
+  <div id="nav"></div>
+  <div class="legend">
+    <code>@DocumentReference</code><br>
+    Club → Entrenador · 1:1<br>
+    Club → Jugadores · 1:N<br>
+    Club → Asociación · N:1<br>
+    Club → Competiciones · N:M
+  </div>
+</aside>
+
+<main id="main"></main>
+
+<div class="scrim" onclick="closeDrawer()"></div>
+<div class="drawer">
+  <header><h3 id="dTitle"></h3><button class="btn line xs" onclick="closeDrawer()">Cerrar</button></header>
+  <form id="dForm"></form>
+  <footer><button class="btn line" type="button" onclick="closeDrawer()">Cancelar</button><button class="btn accent" type="submit" form="dForm">Guardar</button></footer>
+</div>
+<div id="msg"></div>
+
+<script th:inline="none">
+const API = '/api';
+const S = { view:'clubes', sel:null, clubes:[], entrenadores:[], jugadores:[], asociaciones:[], competiciones:[] };
+
+const MODEL = {
+  entrenadores:{ title:'Entrenadores', one:'entrenador', sub:'Cada uno dirige a lo sumo un club (@OneToOne)',
+    f:[ ['nombre','Nombre'],['apellido','Apellido'],['edad','Edad','number'],['nacionalidad','Nacionalidad']] },
+  jugadores:{ title:'Jugadores', one:'jugador', sub:'Cada uno pertenece a lo sumo a un club (@OneToMany)',
+    f:[ ['nombre','Nombre'],['apellido','Apellido'],['numero','Dorsal','number'],['posicion','Posición']] },
+  asociaciones:{ title:'Asociaciones', one:'asociación', fem:true, sub:'Muchos clubes pertenecen a una asociación (@ManyToOne)',
+    f:[ ['nombre','Nombre'],['pais','País'],['presidente','Presidente']] },
+  competiciones:{ title:'Competiciones', one:'competición', fem:true, sub:'Muchos clubes en muchas competiciones (@ManyToMany)',
+    f:[ ['nombre','Nombre'],['montoPremio','Premio (USD)','number'],['fechaInicio','Inicio','date'],['fechaFin','Fin','date']] },
+};
+
+// ---------- utilidades
+const $ = s => document.querySelector(s);
+const h = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nom = p => p ? `${p.nombre} ${p.apellido}` : '';
+const ini = t => (t||'?').split(/\s+/).filter(w => w.length > 2 || /^[A-Z]/.test(w)).slice(0,2).map(w => w[0]).join('').toUpperCase();
+const color = t => { let x = 0; for (const ch of (t||'')) x = (x*31 + ch.charCodeAt(0)) % 360; return `hsl(${x} 55% 38%)`; };
+const usd = n => Number(n||0).toLocaleString('es-CO', {style:'currency', currency:'USD', maximumFractionDigits:0});
+const fecha = d => d ? new Date(d + 'T00:00').toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+
+async function call(method, path, body){
+  const r = await fetch(API + path, {method, headers: body ? {'Content-Type':'application/json'} : {}, body: body ? JSON.stringify(body) : undefined});
+  if (!r.ok){ let m = `Error ${r.status}`; try { const j = await r.json(); if (j.message) m = j.message; } catch(_){} throw new Error(m); }
+  return r.status === 204 ? null : r.json();
+}
+function say(t, err){ const m = $('#msg'); m.textContent = t; m.className = 'show' + (err ? ' err' : ''); clearTimeout(m.t); m.t = setTimeout(() => m.className = '', 3500); }
+async function act(fn, ok){ try { await fn(); ok && say(ok); await load(); } catch(e){ say(e.message, true); } }
+async function load(){
+  const keys = ['clubes','entrenadores','jugadores','asociaciones','competiciones'];
+  (await Promise.all(keys.map(k => call('GET','/'+k)))).forEach((d,i) => S[keys[i]] = d);
+  if (!S.clubes.some(c => c.id === S.sel)) S.sel = S.clubes[0]?.id || null;
+  draw();
+}
+
+const clubOfCoach = id => S.clubes.find(c => c.entrenador?.id === id);
+const clubOfPlayer = id => S.clubes.find(c => (c.jugadores||[]).some(j => j.id === id));
+const clubsOf = (key, id) => S.clubes.filter(c => key === 'asociaciones' ? c.asociacion?.id === id : (c.competiciones||[]).some(x => x.id === id));
+
+// ---------- navegación
+function draw(){
+  const items = [ ['clubes','Clubes'], ...Object.entries(MODEL).map(([k,v]) => [k, v.title])];
+  $('#nav').innerHTML = items.map(([k,l]) => `<button class="nav-item ${S.view===k?'on':''}" onclick="S.view='${k}';draw()">${l}<span class="count">${S[k].length}</span></button>`).join('') + '<a class="nav-item" href="/clubes">Vistas web (CRUD)</a><a class="nav-item" href="/listar">Resumen</a>';
+  S.view === 'clubes' ? drawClubs() : drawEntity(S.view);
+}
+
+// ---------- clubes
+function drawClubs(){
+  const c = S.clubes.find(x => x.id === S.sel);
+  $('#main').innerHTML = `
+    <div class="top"><div><h1>Clubes</h1><p>Selecciona un club para ver y editar sus relaciones.</p></div>
+      <button class="btn accent" onclick="clubDrawer()">+ Registrar club</button></div>
+    <div class="md">
+      <div class="club-list">${S.clubes.map(x => `
+        <div class="club-item ${x.id===S.sel?'on':''}" onclick="S.sel='${x.id}';draw()">
+          <div class="crest" style="background:${color(x.nombre)}">${h(ini(x.nombre))}</div>
+          <div><b>${h(x.nombre)}</b><small>${(x.jugadores||[]).length} jugadores · ${(x.competiciones||[]).length} torneos</small></div>
+        </div>`).join('') || '<p class="none">Aún no hay clubes registrados.</p>'}</div>
+      ${c ? detail(c) : '<div class="detail none" style="padding:40px;text-align:center">Sin club seleccionado</div>'}
+    </div>`;
+}
+
+function detail(c){
+  const freeCoaches = S.entrenadores.filter(e => !clubOfCoach(e.id));
+  const freePlayers = S.jugadores.filter(j => !clubOfPlayer(j.id));
+  const otherComps = S.competiciones.filter(k => !(c.competiciones||[]).some(x => x.id === k.id));
+  const squad = [...(c.jugadores||[])].sort((a,b) => a.numero - b.numero);
+  return `
+  <section class="detail">
+    <div class="detail-head">
+      <div class="crest" style="background:${color(c.nombre)}">${h(ini(c.nombre))}</div>
+      <div><h2>${h(c.nombre)}</h2><div class="id">_id ${h(c.id)}</div></div>
+      <div class="acts"><button class="btn line xs" onclick="clubDrawer('${c.id}')">Editar</button>
+        <button class="btn danger xs" onclick="dropClub('${c.id}')">Eliminar</button></div>
+    </div>
+    <div class="rels">
+      <div class="rel">
+        <div class="rel-h"><span>Director técnico</span><code class="ann o2o">@OneToOne</code></div>
+        ${c.entrenador ? `<div class="person"><div class="avatar">${h(ini(nom(c.entrenador)))}</div>
+            <div style="flex:1"><b>${h(nom(c.entrenador))}</b><div class="muted">${h(c.entrenador.edad)} años · ${h(c.entrenador.nacionalidad)}</div></div>
+            <button class="btn line xs" onclick="act(()=>call('DELETE','/clubes/${c.id}/entrenador'),'Entrenador desvinculado')">Quitar</button></div>`
+          : `<p class="none">Sin entrenador asignado</p>
+             ${freeCoaches.length ? `<div class="picker"><select id="pc">${freeCoaches.map(e=>`<option value="${e.id}">${h(nom(e))}</option>`).join('')}</select>
+             <button class="btn xs" onclick="link('${c.id}','PUT','entrenador','#pc')">Asignar</button></div>` : '<p class="none">No hay entrenadores libres.</p>'}`}
+      </div>
+      <div class="rel">
+        <div class="rel-h"><span>Asociación</span><code class="ann m2o">@ManyToOne</code></div>
+        ${c.asociacion ? `<div class="person"><div class="avatar" style="background:var(--blue-soft);color:var(--blue)">${h(ini(c.asociacion.nombre))}</div>
+          <div><b>${h(c.asociacion.nombre)}</b><div class="muted">${h(c.asociacion.pais)} · Pres. ${h(c.asociacion.presidente)}</div></div></div>` : '<p class="none">Sin asociación</p>'}
+        <div class="picker"><select id="pa">${S.asociaciones.map(a=>`<option value="${a.id}" ${c.asociacion?.id===a.id?'selected':''}>${h(a.nombre)}</option>`).join('')}</select>
+          <button class="btn xs" onclick="link('${c.id}','PUT','asociacion','#pa')">Cambiar</button></div>
+      </div>
+      <div class="rel wide">
+        <div class="rel-h"><span>Plantilla · ${squad.length}</span><code class="ann o2m">@OneToMany</code></div>
+        ${squad.length ? `<div class="squad">${squad.map(j => `<div class="shirt"><div class="n">${h(j.numero)}</div>
+            <div><b>${h(nom(j))}</b><small>${h(j.posicion)}</small></div>
+            <button class="rm" title="Sacar del club" onclick="act(()=>call('DELETE','/clubes/${c.id}/jugadores/${j.id}'),'Jugador liberado')">✕</button></div>`).join('')}</div>`
+          : '<p class="none">El club no tiene jugadores.</p>'}
+        ${freePlayers.length ? `<div class="picker"><select id="pj">${freePlayers.map(j=>`<option value="${j.id}">#${j.numero} ${h(nom(j))} · ${h(j.posicion)}</option>`).join('')}</select>
+          <button class="btn xs" onclick="link('${c.id}','POST','jugadores','#pj')">Fichar</button></div>` : ''}
+      </div>
+      <div class="rel wide" style="border-bottom:0">
+        <div class="rel-h"><span>Competiciones</span><code class="ann m2m">@ManyToMany</code></div>
+        <div class="badges">${(c.competiciones||[]).map(k => `<span class="badge">🏆 <b>${h(k.nombre)}</b> <span class="muted">${usd(k.montoPremio)}</span>
+            <button class="rm" title="Retirar" onclick="act(()=>call('DELETE','/clubes/${c.id}/competiciones/${k.id}'),'Retirado de ${h(k.nombre)}')">✕</button></span>`).join('') || '<p class="none">No participa en competiciones.</p>'}</div>
+        ${otherComps.length ? `<div class="picker"><select id="pk">${otherComps.map(k=>`<option value="${k.id}">${h(k.nombre)}</option>`).join('')}</select>
+          <button class="btn xs" onclick="link('${c.id}','POST','competiciones','#pk')">Inscribir</button></div>` : ''}
+      </div>
+    </div>
+  </section>`;
+}
+function link(clubId, method, ruta, sel){
+  const v = $(sel)?.value; if (!v) return;
+  act(() => call(method, `/clubes/${clubId}/${ruta}/${v}`), 'Relación guardada');
+}
+function dropClub(id){
+  if (confirm('Se eliminará el club junto con su entrenador y sus jugadores (cascada). ¿Continuar?'))
+    act(() => call('DELETE','/clubes/'+id), 'Club eliminado');
+}
+
+// ---------- drawer
+function openDrawer(title, html, onSave){
+  $('#dTitle').textContent = title; $('#dForm').innerHTML = html;
+  $('#dForm').onsubmit = e => { e.preventDefault(); onSave(new FormData(e.target)); closeDrawer(); };
+  document.body.classList.add('open');
+  setTimeout(() => $('#dForm input')?.focus(), 250);
+}
+function closeDrawer(){ document.body.classList.remove('open'); }
+document.addEventListener('keydown', e => e.key === 'Escape' && closeDrawer());
+
+function clubDrawer(id){
+  const c = id ? S.clubes.find(x => x.id === id) : {};
+  const opt = (name, value, text, checked, takenBy) => `<label class="opt ${takenBy?'taken':''}">
+      <input type="checkbox" name="${name}" value="${value}" ${checked?'checked':''} ${takenBy?'disabled':''}> ${text}${takenBy?`<em>en ${h(takenBy)}</em>`:''}</label>`;
+  openDrawer(id ? 'Editar club' : 'Registrar club', `
+    <label>Nombre del club</label><input name="nombre" required value="${h(c.nombre)}">
+    <label>Entrenador · 1:1</label>
+    <select name="entrenadorId"><option value="">Sin entrenador</option>${S.entrenadores.map(e => { const o = clubOfCoach(e.id); const t = o && o.id !== id;
+      return `<option value="${e.id}" ${c.entrenador?.id===e.id?'selected':''} ${t?'disabled':''}>${h(nom(e))}${t?' (en '+h(o.nombre)+')':''}</option>`; }).join('')}</select>
+    <label>Asociación · N:1</label>
+    <select name="asociacionId"><option value="">Sin asociación</option>${S.asociaciones.map(a => `<option value="${a.id}" ${c.asociacion?.id===a.id?'selected':''}>${h(a.nombre)}</option>`).join('')}</select>
+    <label>Jugadores · 1:N</label>
+    <div class="opts">${S.jugadores.map(j => { const o = clubOfPlayer(j.id);
+      return opt('jug', j.id, `#${j.numero} ${h(nom(j))}`, (c.jugadores||[]).some(x => x.id === j.id), o && o.id !== id ? o.nombre : null); }).join('') || '<div class="opt none">No hay jugadores</div>'}</div>
+    <label>Competiciones · N:M</label>
+    <div class="opts">${S.competiciones.map(k => opt('comp', k.id, h(k.nombre), (c.competiciones||[]).some(x => x.id === k.id))).join('') || '<div class="opt none">No hay competiciones</div>'}</div>`,
+    fd => {
+      const body = { nombre: fd.get('nombre'), entrenadorId: fd.get('entrenadorId') || null, asociacionId: fd.get('asociacionId') || null,
+                     jugadoresIds: fd.getAll('jug'), competicionesIds: fd.getAll('comp') };
+      act(async () => { const r = id ? await call('PUT','/clubes/'+id, body) : await call('POST','/clubes', body); S.sel = r.id; }, id ? 'Club actualizado' : 'Club registrado');
+    });
+}
+
+// ---------- entidades simples
+function drawEntity(key){
+  const m = MODEL[key];
+  const owners = o => {
+    if (key === 'entrenadores' || key === 'jugadores'){
+      const c = key === 'entrenadores' ? clubOfCoach(o.id) : clubOfPlayer(o.id);
+      return c ? `<span class="tagc">${h(c.nombre)}</span>` : '<span class="tagc free">Libre</span>';
+    }
+    const cs = clubsOf(key, o.id);
+    return cs.map(c => `<span class="tagc">${h(c.nombre)}</span>`).join('') || '<span class="muted" style="font-size:12px">Sin clubes</span>';
+  };
+  const title = o => key === 'jugadores' ? `#${h(o.numero)} ${h(nom(o))}` : key === 'entrenadores' ? h(nom(o)) : h(o.nombre);
+  const rows = o => m.f.filter(([k]) => !['nombre','apellido'].includes(k) && !(key==='jugadores' && k==='numero')).map(([k,l]) => {
+    const v = k === 'montoPremio' ? usd(o[k]) : k.startsWith('fecha') ? fecha(o[k]) : h(o[k]);
+    return `<dt>${l}</dt><dd>${v}</dd>`; }).join('');
+  $('#main').innerHTML = `
+    <div class="top"><div><h1>${m.title}</h1><p>${m.sub}</p></div>
+      <button class="btn accent" onclick="entityDrawer('${key}')">+ ${m.fem?'Nueva':'Nuevo'} ${m.one}</button></div>
+    <div class="cards">${S[key].map(o => `
+      <div class="ecard"><h3>${title(o)}</h3>
+        <dl>${rows(o)}</dl>
+        <div class="owner">${owners(o)}</div>
+        <div class="row"><button class="btn line xs" onclick="entityDrawer('${key}','${o.id}')">Editar</button>
+          <button class="btn danger xs" onclick="dropEntity('${key}','${o.id}')">Eliminar</button></div>
+      </div>`).join('') || '<p class="none">No hay registros.</p>'}</div>`;
+}
+function entityDrawer(key, id){
+  const m = MODEL[key], o = id ? S[key].find(x => x.id === id) : {};
+  openDrawer(`${id ? 'Editar' : (m.fem ? 'Nueva' : 'Nuevo')} ${m.one}`,
+    m.f.map(([k,l,t]) => `<label>${l}</label><input name="${k}" type="${t||'text'}" required value="${h(o[k])}">`).join(''),
+    fd => {
+      const body = {}; m.f.forEach(([k,,t]) => body[k] = t === 'number' ? Number(fd.get(k)) : fd.get(k));
+      act(() => id ? call('PUT', `/${key}/${id}`, body) : call('POST', `/${key}`, body), 'Guardado');
+    });
+}
+function dropEntity(key, id){
+  if (confirm('¿Eliminar este registro?')) act(() => call('DELETE', `/${key}/${id}`), 'Eliminado');
+}
+
+load().catch(e => say('No se pudo conectar con la API: ' + e.message, true));
+</script>
+</body>
+</html>

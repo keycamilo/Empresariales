@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Jugador')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5" style="max-width:640px">
+  <div th:replace="~{fragments/base :: hero('Jugador','Datos del jugador y su dorsal','👕')}"></div>
+  <div class="card"><div class="card-body">
+    <form th:action="@{${accion}}" th:object="${jugador}" method="post" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="nombre">Nombre</label>
+        <input type="text" class="form-control" th:field="*{nombre}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{nombre}">Valor no válido</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="apellido">Apellido</label>
+        <input type="text" class="form-control" th:field="*{apellido}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{apellido}">Valor no válido</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="numero">Dorsal (mínimo 1)</label>
+        <input type="number" class="form-control" th:field="*{numero}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{numero}">Valor no válido</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="posicion">Posición</label>
+        <input type="text" class="form-control" th:field="*{posicion}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{posicion}">Valor no válido</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+        <a href="/jugadores" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

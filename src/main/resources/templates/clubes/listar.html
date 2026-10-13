@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Clubes')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Clubes','Los equipos que se disputan la liga','🛡️')}"></div>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="text-secondary"><strong th:text="${#lists.size(clubes)}">0</strong> registrados</div>
+    <a href="/clubes/nuevo" class="btn btn-primary">⚽ Nuevo club</a>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-4" th:each="c : ${clubes}">
+      <article class="tarjeta">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="escudo" th:classappend="'tone-' + ${#strings.length(c.nombre) % 6}" th:text="${#strings.toUpperCase(#strings.substring(c.nombre,0,1))}">C</div>
+          <div>
+            <h2 th:text="${c.nombre}">Club</h2>
+            <div class="sub" th:text="${c.asociacion != null ? c.asociacion.nombre : 'Sin asociación'}">Asociación</div>
+          </div>
+        </div>
+        <ul class="datos">
+          <li>🧢 DT: <strong th:text="${c.entrenador != null ? c.entrenador.nombre + ' ' + c.entrenador.apellido : 'Sin asignar'}">-</strong></li>
+          <li>👕 <strong th:text="${#lists.size(c.jugadores)}">0</strong> jugadores</li>
+          <li>🏆 <strong th:text="${#lists.size(c.competiciones)}">0</strong> competiciones</li>
+        </ul>
+      <div class="tarjeta__acciones">
+        <a th:href="@{/clubes/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+        <a th:href="@{/clubes/{id}/editar(id=${c.id})}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+        <form th:action="@{/clubes/{id}/eliminar(id=${c.id})}" method="post"
+              onsubmit="return confirm('¿Eliminar este registro?')">
+          <button class="btn btn-sm btn-outline-danger">🟥 Eliminar</button>
+        </form>
+      </div>
+      </article>
+    </div>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(clubes)}"><div class="grande">🛡️</div>Todavía no hay clubes. ¡Pita el inicio y registra el primero!</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>
