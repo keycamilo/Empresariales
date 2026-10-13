@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Entrenadores')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Entrenadores','El cuerpo técnico de cada equipo','🧢')}"></div>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="text-secondary"><strong th:text="${#lists.size(entrenadores)}">0</strong> registrados</div>
+    <a href="/entrenadores/nuevo" class="btn btn-primary">🧢 Nuevo entrenador</a>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-4" th:each="e : ${entrenadores}">
+      <article class="tarjeta">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="medalla">🧢</div>
+          <div>
+            <h2 th:text="${e.nombre + ' ' + e.apellido}">Nombre</h2>
+            <div class="sub">Director técnico</div>
+          </div>
+        </div>
+        <ul class="datos">
+          <li>🎂 <strong th:text="${e.edad}">0</strong> años</li>
+          <li>🌎 <span th:text="${e.nacionalidad}">-</span></li>
+        </ul>
+      <div class="tarjeta__acciones">
+        <a th:href="@{/entrenadores/{id}/editar(id=${e.id})}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+        <form th:action="@{/entrenadores/{id}/eliminar(id=${e.id})}" method="post"
+              onsubmit="return confirm('¿Eliminar este registro?')">
+          <button class="btn btn-sm btn-outline-danger">🟥 Eliminar</button>
+        </form>
+      </div>
+      </article>
+    </div>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(entrenadores)}"><div class="grande">🧢</div>No hay entrenadores en el banco todavía.</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

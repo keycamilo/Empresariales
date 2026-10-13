@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Competiciones')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Competiciones','Ligas y copas en disputa','🏆')}"></div>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="text-secondary"><strong th:text="${#lists.size(competiciones)}">0</strong> registrados</div>
+    <a href="/competiciones/nuevo" class="btn btn-primary">🏆 Nueva competición</a>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-4" th:each="k : ${competiciones}">
+      <article class="tarjeta">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="medalla oro">🏆</div>
+          <div>
+            <h2 th:text="${k.nombre}">Nombre</h2>
+            <div class="premio" th:text="'$ ' + ${#numbers.formatDecimal(k.montoPremio, 0, 'POINT', 0, 'COMMA')}">$ 0</div>
+          </div>
+        </div>
+        <ul class="datos">
+          <li>🟢 Inicio: <strong th:text="${k.fechaInicio}">-</strong></li>
+          <li>🏁 Fin: <strong th:text="${k.fechaFin}">-</strong></li>
+        </ul>
+      <div class="tarjeta__acciones">
+        <a th:href="@{/competiciones/{id}(id=${k.id})}" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+        <a th:href="@{/competiciones/{id}/editar(id=${k.id})}" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+        <form th:action="@{/competiciones/{id}/eliminar(id=${k.id})}" method="post"
+              onsubmit="return confirm('¿Eliminar este registro?')">
+          <button class="btn btn-sm btn-outline-danger">🟥 Eliminar</button>
+        </form>
+      </div>
+      </article>
+    </div>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(competiciones)}"><div class="grande">🏆</div>No hay torneos programados.</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

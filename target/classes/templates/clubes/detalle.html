@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Club')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <section class="hero-cancha">
+    <div class="escudo lg" th:classappend="'tone-' + ${#strings.length(club.nombre) % 6}" th:text="${#strings.toUpperCase(#strings.substring(club.nombre,0,1))}">C</div>
+    <div>
+      <div class="hero-cancha__etiqueta">Ficha del club</div>
+      <h1 th:text="${club.nombre}">Club</h1>
+      <p><span th:text="${#lists.size(club.jugadores)}">0</span> jugadores · <span th:text="${#lists.size(club.competiciones)}">0</span> competiciones</p>
+    </div>
+  </section>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+
+  <div class="d-flex justify-content-end gap-2 mb-3 flex-wrap">
+    <a th:href="@{/clubes/{id}/editar(id=${club.id})}" class="btn btn-outline-secondary">✏️ Editar</a>
+    <form th:action="@{/clubes/{id}/eliminar(id=${club.id})}" method="post"
+          onsubmit="return confirm('Se eliminará el club junto con su entrenador y sus jugadores. ¿Continuar?')">
+      <button class="btn btn-outline-danger">🟥 Eliminar</button>
+    </form>
+    <a href="/clubes" class="btn btn-primary">⬅ Volver</a>
+  </div>
+
+  <div class="row g-3">
+    <!-- @OneToOne entrenador -->
+    <div class="col-md-6"><div class="card h-100"><div class="card-body">
+      <h2 class="h6 text-secondary">🧢 Entrenador <span class="badge text-bg-light">@OneToOne</span></h2>
+      <div th:if="${club.entrenador != null}" class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong th:text="${club.entrenador.nombre + ' ' + club.entrenador.apellido}">Nombre</strong>
+          <div class="text-secondary small" th:text="${club.entrenador.edad + ' años · ' + club.entrenador.nacionalidad}">-</div>
+        </div>
+        <form th:action="@{/clubes/{id}/entrenador/quitar(id=${club.id})}" method="post">
+          <button class="btn btn-sm btn-outline-danger">Quitar</button>
+        </form>
+      </div>
+      <div th:if="${club.entrenador == null}">
+        <p class="text-secondary">Sin entrenador asignado.</p>
+        <form th:if="${!#lists.isEmpty(entrenadoresLibres)}" th:action="@{/clubes/{id}/entrenador(id=${club.id})}" method="post" class="input-group">
+          <select name="entrenadorId" class="form-select">
+            <option th:each="e : ${entrenadoresLibres}" th:value="${e.id}" th:text="${e.nombre + ' ' + e.apellido}">Entrenador</option>
+          </select>
+          <button class="btn btn-primary">Asignar</button>
+        </form>
+        <p class="text-secondary small mb-0" th:if="${#lists.isEmpty(entrenadoresLibres)}">No hay entrenadores libres.</p>
+      </div>
+    </div></div></div>
+
+    <!-- @ManyToOne asociacion -->
+    <div class="col-md-6"><div class="card h-100"><div class="card-body">
+      <h2 class="h6 text-secondary">🏛️ Asociación <span class="badge text-bg-light">@ManyToOne</span></h2>
+      <p th:if="${club.asociacion != null}">
+        <strong th:text="${club.asociacion.nombre}">Asociación</strong>
+        <span class="text-secondary small" th:text="${' · ' + club.asociacion.pais}"></span>
+      </p>
+      <p class="text-secondary" th:if="${club.asociacion == null}">Sin asociación.</p>
+      <form th:if="${!#lists.isEmpty(asociaciones)}" th:action="@{/clubes/{id}/asociacion(id=${club.id})}" method="post" class="input-group">
+        <select name="asociacionId" class="form-select">
+          <option th:each="a : ${asociaciones}" th:value="${a.id}" th:text="${a.nombre}"
+                  th:selected="${club.asociacion != null and club.asociacion.id == a.id}">Asociación</option>
+        </select>
+        <button class="btn btn-primary">Cambiar</button>
+      </form>
+    </div></div></div>
+
+    <!-- @OneToMany jugadores -->
+    <div class="col-12"><div class="card"><div class="card-body">
+      <h2 class="h6 text-secondary">👕 Plantilla · <span th:text="${#lists.size(club.jugadores)}">0</span> <span class="badge text-bg-light">@OneToMany</span></h2>
+      <div class="cancha" th:if="${!#lists.isEmpty(club.jugadores)}">
+        <div class="cancha__grid">
+          <div class="jugador-cancha" th:each="j : ${club.jugadores}">
+            <div class="camiseta" th:classappend="'pos-' + ${#strings.toLowerCase(j.posicion)}" th:text="${j.numero}">10</div>
+            <b th:text="${j.nombre + ' ' + j.apellido}">Nombre</b>
+            <small th:text="${j.posicion}">Posición</small>
+            <form th:action="@{/clubes/{id}/jugadores/{jid}/quitar(id=${club.id},jid=${j.id})}" method="post">
+              <button class="btn btn-tarjeta-roja" title="Sacar del club">Expulsar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <p class="text-secondary" th:if="${#lists.isEmpty(club.jugadores)}">El club no tiene jugadores.</p>
+      <form th:if="${!#lists.isEmpty(jugadoresLibres)}" th:action="@{/clubes/{id}/jugadores(id=${club.id})}" method="post" class="input-group">
+        <select name="jugadorId" class="form-select">
+          <option th:each="j : ${jugadoresLibres}" th:value="${j.id}"
+                  th:text="'#' + ${j.numero} + ' ' + ${j.nombre} + ' ' + ${j.apellido} + ' · ' + ${j.posicion}">Jugador</option>
+        </select>
+        <button class="btn btn-primary">Fichar</button>
+      </form>
+    </div></div></div>
+
+    <!-- @ManyToMany competiciones -->
+    <div class="col-12"><div class="card"><div class="card-body">
+      <h2 class="h6 text-secondary">🏆 Competiciones <span class="badge text-bg-light">@ManyToMany</span></h2>
+      <ul class="list-group mb-3" th:if="${!#lists.isEmpty(club.competiciones)}">
+        <li class="list-group-item d-flex justify-content-between align-items-center" th:each="k : ${club.competiciones}">
+          <a th:href="@{/competiciones/{id}(id=${k.id})}" th:text="${k.nombre}">Competición</a>
+          <form th:action="@{/clubes/{id}/competiciones/{cid}/quitar(id=${club.id},cid=${k.id})}" method="post">
+            <button class="btn btn-sm btn-outline-danger">Retirar</button>
+          </form>
+        </li>
+      </ul>
+      <p class="text-secondary" th:if="${#lists.isEmpty(club.competiciones)}">No participa en competiciones.</p>
+      <form th:if="${!#lists.isEmpty(competicionesDisponibles)}" th:action="@{/clubes/{id}/competiciones(id=${club.id})}" method="post" class="input-group">
+        <select name="competicionId" class="form-select">
+          <option th:each="k : ${competicionesDisponibles}" th:value="${k.id}" th:text="${k.nombre}">Competición</option>
+        </select>
+        <button class="btn btn-primary">Inscribir</button>
+      </form>
+    </div></div></div>
+  </div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

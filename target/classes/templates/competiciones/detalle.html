@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Competición')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Competición','Ficha y clubes relacionados','🏆')}"></div>
+  <div th:replace="~{fragments/base :: mensajes}"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="h4 mb-0" th:text="${competicion.nombre}">Nombre</h2>
+    <div class="d-flex gap-2">
+      <a th:href="@{/competiciones/{id}/editar(id=${competicion.id})}" class="btn btn-outline-secondary">✏️ Editar</a>
+      <a href="/competiciones" class="btn btn-primary">⬅ Volver</a>
+    </div>
+  </div>
+  <div class="card mb-4"><div class="card-body d-flex gap-3 align-items-center flex-wrap">
+    <div class="medalla oro">🏆</div>
+    <div class="datos">
+      <div class="premio" th:text="'$ ' + ${#numbers.formatDecimal(competicion.montoPremio, 0, 'POINT', 0, 'COMMA')}">$ 0</div>
+      <div>🟢 Inicio: <strong th:text="${competicion.fechaInicio}">-</strong></div>
+      <div>🏁 Fin: <strong th:text="${competicion.fechaFin}">-</strong></div>
+    </div>
+  </div></div>
+  <h2 class="h5">🛡️ Clubes</h2>
+  <div th:if="${!#lists.isEmpty(clubes)}">
+    <a class="chip-club" th:each="c : ${clubes}" th:href="@{/clubes/{id}(id=${c.id})}">
+      <div class="escudo" th:classappend="'tone-' + ${#strings.length(c.nombre) % 6}" th:text="${#strings.toUpperCase(#strings.substring(c.nombre,0,1))}">C</div>
+      <span th:text="${c.nombre}">Club</span>
+    </a>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(clubes)}">Ningún club participa en esta competición.</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

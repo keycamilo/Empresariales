@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Resumen')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5">
+  <div th:replace="~{fragments/base :: hero('Resumen de la liga','Vista general de clubes y jugadores registrados','📊')}"></div>
+
+  <section class="marcador" aria-label="Marcador de la liga">
+    <div class="marcador__lado">
+      <div class="marcador__num" th:text="${totalClubes}">0</div>
+      <div class="marcador__txt">Clubes</div>
+    </div>
+    <div class="marcador__vs">VS</div>
+    <div class="marcador__lado">
+      <div class="marcador__num" th:text="${totalJugadores}">0</div>
+      <div class="marcador__txt">Jugadores</div>
+    </div>
+  </section>
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="h4 mb-0">🛡️ Tabla de clubes</h2>
+    <a href="/" class="btn btn-primary">⬅ Volver al panel</a>
+  </div>
+
+  <div class="row g-3" th:if="${!#lists.isEmpty(clubes)}">
+    <div class="col-md-6 col-xl-4" th:each="club : ${clubes}">
+      <article class="tarjeta">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="escudo" th:classappend="'tone-' + ${#strings.length(club.nombre) % 6}" th:text="${#strings.toUpperCase(#strings.substring(club.nombre,0,1))}">C</div>
+          <h2 th:text="${club.nombre}">Nombre del club</h2>
+        </div>
+        <ul class="datos">
+          <li>🧢 DT: <strong th:text="${club.entrenador != null ? club.entrenador.nombre + ' ' + club.entrenador.apellido : 'Sin asignar'}">Sin asignar</strong></li>
+          <li>👕 Jugadores: <strong th:text="${club.jugadores != null ? #lists.size(club.jugadores) : 0}">0</strong></li>
+        </ul>
+        <div class="tarjeta__acciones">
+          <a th:href="@{/clubes/{id}(id=${club.id})}" class="btn btn-sm btn-outline-primary">👁️ Ver ficha</a>
+        </div>
+      </article>
+    </div>
+  </div>
+  <div class="vacio" th:if="${#lists.isEmpty(clubes)}"><div class="grande">🥅</div>Todavía no hay clubes registrados en la base de datos.</div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>

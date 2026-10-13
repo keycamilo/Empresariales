@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/base :: head('Asociación')}"></th:block></head>
+<body>
+<div th:replace="~{fragments/encabezado :: barra}"></div>
+<main class="container pb-5" style="max-width:640px">
+  <div th:replace="~{fragments/base :: hero('Asociación','Datos de la federación','🏛️')}"></div>
+  <div class="card"><div class="card-body">
+    <form th:action="@{${accion}}" th:object="${asociacion}" method="post" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="nombre">Nombre</label>
+        <input type="text" class="form-control" th:field="*{nombre}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{nombre}">Valor no válido</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="pais">País</label>
+        <input type="text" class="form-control" th:field="*{pais}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{pais}">Valor no válido</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="presidente">Presidente</label>
+        <input type="text" class="form-control" th:field="*{presidente}" th:errorclass="is-invalid">
+        <div class="invalid-feedback" th:errors="*{presidente}">Valor no válido</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Guardar</button>
+        <a href="/asociaciones" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</main>
+<th:block th:replace="~{fragments/base :: scripts}"></th:block>
+</body></html>
